@@ -16,21 +16,22 @@ import { useState } from 'react';
 interface KanbanColumnProps {
   column: Column;
   tasks: Task[];
+  isOver?: boolean;
 }
 
-const colorClasses: Record<string, { bg: string; border: string }> = {
-  gray: { bg: 'bg-gray-50', border: 'border-gray-200' },
-  blue: { bg: 'bg-blue-50', border: 'border-blue-200' },
-  green: { bg: 'bg-green-50', border: 'border-green-200' },
-  yellow: { bg: 'bg-yellow-50', border: 'border-yellow-200' },
-  red: { bg: 'bg-red-50', border: 'border-red-200' },
-  purple: { bg: 'bg-purple-50', border: 'border-purple-200' },
-  pink: { bg: 'bg-pink-50', border: 'border-pink-200' },
-  indigo: { bg: 'bg-indigo-50', border: 'border-indigo-200' },
+const colorClasses: Record<string, { bg: string; border: string; hoverBg: string }> = {
+  gray: { bg: 'bg-gray-50', border: 'border-gray-200', hoverBg: 'bg-gray-100' },
+  blue: { bg: 'bg-blue-50', border: 'border-blue-200', hoverBg: 'bg-blue-100' },
+  green: { bg: 'bg-green-50', border: 'border-green-200', hoverBg: 'bg-green-100' },
+  yellow: { bg: 'bg-yellow-50', border: 'border-yellow-200', hoverBg: 'bg-yellow-100' },
+  red: { bg: 'bg-red-50', border: 'border-red-200', hoverBg: 'bg-red-100' },
+  purple: { bg: 'bg-purple-50', border: 'border-purple-200', hoverBg: 'bg-purple-100' },
+  pink: { bg: 'bg-pink-50', border: 'border-pink-200', hoverBg: 'bg-pink-100' },
+  indigo: { bg: 'bg-indigo-50', border: 'border-indigo-200', hoverBg: 'bg-indigo-100' },
 };
 
-export function KanbanColumn({ column, tasks }: KanbanColumnProps) {
-  const { setNodeRef, isOver } = useDroppable({
+export function KanbanColumn({ column, tasks, isOver }: KanbanColumnProps) {
+  const { setNodeRef, isOver: isOverDroppable } = useDroppable({
     id: column.id,
     data: {
       type: 'column',
@@ -43,6 +44,7 @@ export function KanbanColumn({ column, tasks }: KanbanColumnProps) {
   const [editTitle, setEditTitle] = useState(column.title);
 
   const colors = colorClasses[column.color || 'gray'];
+  const showHighlight = isOver || isOverDroppable;
 
   const handleSave = () => {
     if (editTitle.trim()) {
@@ -126,10 +128,16 @@ export function KanbanColumn({ column, tasks }: KanbanColumnProps) {
       <div
         ref={setNodeRef}
         className={cn(
-          'flex-1 border-2 border-dashed rounded-lg p-4 transition-colors overflow-y-auto',
-          colors.bg,
-          colors.border,
-          isOver && 'ring-2 ring-blue-400 bg-blue-100'
+          'flex-1 border-2 rounded-lg p-4 transition-all duration-200 overflow-y-auto',
+          showHighlight ? [
+            'border-solid border-blue-500 shadow-lg scale-[1.02]',
+            colors.hoverBg,
+            'ring-4 ring-blue-200'
+          ] : [
+            'border-dashed',
+            colors.bg,
+            colors.border,
+          ]
         )}
       >
         <SortableContext
@@ -144,8 +152,11 @@ export function KanbanColumn({ column, tasks }: KanbanColumnProps) {
         </SortableContext>
 
         {tasks.length === 0 && (
-          <div className="flex items-center justify-center h-32 text-gray-400 text-sm">
-            Drop tasks here
+          <div className={cn(
+            "flex items-center justify-center h-32 text-sm transition-all",
+            showHighlight ? "text-blue-600 font-semibold text-lg" : "text-gray-400"
+          )}>
+            {showHighlight ? '📥 Drop here' : 'Drop tasks here'}
           </div>
         )}
       </div>

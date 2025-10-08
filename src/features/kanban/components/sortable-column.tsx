@@ -10,9 +10,10 @@ import { GripVertical } from 'lucide-react';
 interface SortableColumnProps {
   column: Column;
   tasks: Task[];
+  isOver?: boolean;
 }
 
-export function SortableColumn({ column, tasks }: SortableColumnProps) {
+export function SortableColumn({ column, tasks, isOver }: SortableColumnProps) {
   const {
     attributes,
     listeners,
@@ -50,7 +51,7 @@ export function SortableColumn({ column, tasks }: SortableColumnProps) {
         <span className="text-sm text-gray-500">Drag to reorder</span>
       </div>
 
-      <KanbanColumn column={column} tasks={tasks} />
+      <KanbanColumn column={column} tasks={tasks} isOver={isOver} />
       
       <div className="mt-4 flex-shrink-0">
         <AddTaskForm defaultStatus={column.id} />

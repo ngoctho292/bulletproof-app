@@ -104,7 +104,7 @@ export function TaskCard({ task }: TaskCardProps) {
     <div
       ref={setNodeRef}
       style={style}
-      className="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing"
+      className="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition-all cursor-grab active:cursor-grabbing touch-none"
       {...attributes}
       {...listeners}
     >
@@ -117,7 +117,7 @@ export function TaskCard({ task }: TaskCardProps) {
               onClick={(e) => {
                 e.stopPropagation();
               }}
-              className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+              className="text-gray-400 hover:text-gray-600 transition-colors p-1 touch-auto"
             >
               <MoreVertical size={16} />
             </button>
