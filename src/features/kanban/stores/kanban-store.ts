@@ -14,6 +14,7 @@ interface KanbanState {
   addColumn: (column: Omit<Column, 'id'>) => void;
   updateColumn: (id: string, updates: Partial<Column>) => void;
   deleteColumn: (id: string) => void;
+  reorderColumns: (columns: Column[]) => void;
 }
 
 export const useKanbanStore = create<KanbanState>()(
@@ -124,6 +125,9 @@ export const useKanbanStore = create<KanbanState>()(
             tasks: state.tasks.filter((task) => task.status !== id),
           };
         }),
+
+      reorderColumns: (columns) =>
+        set({ columns }),
     }),
     {
       name: 'kanban-storage',

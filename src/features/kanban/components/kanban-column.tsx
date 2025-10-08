@@ -32,6 +32,10 @@ const colorClasses: Record<string, { bg: string; border: string }> = {
 export function KanbanColumn({ column, tasks }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: column.id,
+    data: {
+      type: 'column',
+      column,
+    },
   });
   const { updateColumn, deleteColumn } = useKanbanStore();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -58,7 +62,7 @@ export function KanbanColumn({ column, tasks }: KanbanColumnProps) {
   };
 
   return (
-    <div className="flex flex-col h-full max-h-[calc(100vh-250px)]">
+    <div className="flex flex-col h-full max-h-[calc(100vh-280px)]">
       <div className="mb-4 flex items-center justify-between flex-shrink-0">
         <div className="flex-1">
           {isEditing ? (
