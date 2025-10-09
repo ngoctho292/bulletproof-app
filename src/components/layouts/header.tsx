@@ -22,6 +22,9 @@ export function Header() {
             <Link href="/kanban" className="hover:text-blue-600 transition-colors">
               Kanban
             </Link>
+            <Link href="/workflow" className="hover:text-blue-600 transition-colors">
+              Workflow
+            </Link>
             <Link href="/login" className="hover:text-blue-600 transition-colors">
               Login
             </Link>
