@@ -19,13 +19,14 @@ export function AddColumnForm() {
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [selectedColor, setSelectedColor] = useState('gray');
-  const addColumn = useKanbanStore((state) => state.addColumn);
+  const { addColumn, getCurrentBoard } = useKanbanStore();
+  const board = getCurrentBoard();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) return;
+    if (!title.trim() || !board) return;
 
-    addColumn({
+    addColumn(board.id, {
       title: title.trim(),
       color: selectedColor,
     });

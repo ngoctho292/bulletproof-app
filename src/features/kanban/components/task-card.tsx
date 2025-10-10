@@ -5,7 +5,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { Task } from '../types';
 import { useKanbanStore } from '../stores/kanban-store';
 import { useState } from 'react';
-import { MoreVertical, Edit, Copy, Trash2 } from 'lucide-react';
+import { MoreVertical, Edit, Copy, Trash2, User } from 'lucide-react';
 import * as Popover from '@radix-ui/react-popover';
 import { ClientDate } from '@/components/ui/client-date';
 
@@ -14,7 +14,8 @@ interface TaskCardProps {
 }
 
 export function TaskCard({ task }: TaskCardProps) {
-  const { updateTask, deleteTask, duplicateTask } = useKanbanStore();
+  const { updateTask, deleteTask, duplicateTask, getCurrentBoard } = useKanbanStore();
+  const board = getCurrentBoard();
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(task.title);
   const [editDescription, setEditDescription] = useState(task.description);
@@ -33,6 +34,16 @@ export function TaskCard({ task }: TaskCardProps) {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
+  };
+
+  const assignedMembers = board?.members.filter((m) =>
+    task.assignedTo?.includes(m.id)
+  ) || [];
+
+  const priorityColors = {
+    low: 'bg-gray-100 text-gray-700',
+    medium: 'bg-yellow-100 text-yellow-700',
+    high: 'bg-red-100 text-red-700',
   };
 
   const handleSave = () => {
@@ -140,6 +151,20 @@ export function TaskCard({ task }: TaskCardProps) {
                 Edit
               </button>
               <button
+                onClick={() => {
+                  window.dispatchEvent(
+                    new CustomEvent('open-assign-task-modal', {
+                      detail: { taskId: task.id },
+                    })
+                  );
+                  setMenuOpen(false);
+                }}
+                className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-gray-100 rounded"
+              >
+                <User size={14} />
+                Assign
+              </button>
+              <button
                 onClick={handleDuplicate}
                 className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-gray-100 rounded"
               >
@@ -161,6 +186,37 @@ export function TaskCard({ task }: TaskCardProps) {
       <p className="text-gray-600 text-xs mb-3 line-clamp-3">
         {task.description}
       </p>
+
+      {/* Priority Badge */}
+      {task.priority && (
+        <div className="mb-2">
+          <span className={`text-xs px-2 py-1 rounded-full font-medium ${priorityColors[task.priority]}`}>
+            {task.priority.toUpperCase()}
+          </span>
+        </div>
+      )}
+
+      {/* Assigned Members */}
+      {assignedMembers.length > 0 && (
+        <div className="flex items-center gap-1 mb-2">
+          <div className="flex -space-x-2">
+            {assignedMembers.slice(0, 3).map((member) => (
+              <img
+                key={member.id}
+                src={member.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}`}
+                alt={member.name}
+                title={member.name}
+                className="w-6 h-6 rounded-full border-2 border-white"
+              />
+            ))}
+          </div>
+          {assignedMembers.length > 3 && (
+            <span className="text-xs text-gray-500">
+              +{assignedMembers.length - 3}
+            </span>
+          )}
+        </div>
+      )}
 
       <ClientDate date={task.createdAt} className="text-xs text-gray-400" />
     </div>

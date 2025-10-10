@@ -5,16 +5,14 @@ import {
   DragEndEvent,
   DragOverlay,
   DragStartEvent,
-  PointerSensor,
   TouchSensor,
   MouseSensor,
   useSensor,
   useSensors,
-  closestCenter,
   DragOverEvent,
-  rectIntersection,
   pointerWithin,
-  getFirstCollision,
+  closestCenter,
+  rectIntersection,
 } from '@dnd-kit/core';
 import {
   SortableContext,
@@ -30,7 +28,14 @@ import { AddColumnForm } from './add-column-form';
 import { KanbanColumn } from './kanban-column';
 
 export function KanbanBoard() {
-  const { tasks, columns, moveTask, reorderColumns } = useKanbanStore();
+  const { 
+    tasks, 
+    moveTask, 
+    getCurrentBoard,
+    reorderColumns,
+  } = useKanbanStore();
+  
+  const board = getCurrentBoard();
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [activeColumn, setActiveColumn] = useState<Column | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
@@ -43,36 +48,30 @@ export function KanbanBoard() {
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 250,
+        delay: 200,
         tolerance: 8,
       },
     })
   );
 
-  // Custom collision detection for better mobile experience
   const collisionDetectionStrategy = useCallback(
     (args: any) => {
-      // If dragging a column, use closestCenter
       if (activeColumn) {
         return closestCenter(args);
       }
 
-      // If dragging a task, use custom strategy
-      // First, use pointerWithin to get columns under pointer
       const pointerCollisions = pointerWithin(args);
       
       if (pointerCollisions.length > 0) {
         return pointerCollisions;
       }
 
-      // Fallback to rectIntersection for better detection
       return rectIntersection(args);
     },
     [activeColumn]
   );
 
   const handleDragStart = (event: DragStartEvent) => {
-    // Haptic feedback on mobile
     if ('vibrate' in navigator) {
       navigator.vibrate(50);
     }
@@ -103,12 +102,11 @@ export function KanbanBoard() {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
-    // Haptic feedback on mobile
     if ('vibrate' in navigator) {
       navigator.vibrate(30);
     }
 
-    if (!over) {
+    if (!over || !board) {
       setActiveTask(null);
       setActiveColumn(null);
       setOverId(null);
@@ -120,24 +118,21 @@ export function KanbanBoard() {
 
     // Handle column reordering
     if (activeData?.type === 'column' && overData?.type === 'column') {
-      const oldIndex = columns.findIndex((col) => col.id === active.id);
-      const newIndex = columns.findIndex((col) => col.id === over.id);
+      const oldIndex = board.columns.findIndex((col) => col.id === active.id);
+      const newIndex = board.columns.findIndex((col) => col.id === over.id);
 
       if (oldIndex !== newIndex) {
-        const newColumns = arrayMove(columns, oldIndex, newIndex);
-        reorderColumns(newColumns);
+        const newColumns = arrayMove(board.columns, oldIndex, newIndex);
+        reorderColumns(board.id, newColumns);
       }
     }
     // Handle task movement
     else if (activeData?.type !== 'column') {
       const taskId = active.id as string;
       
-      // Check if dropping on a column
       if (overData?.type === 'column') {
         moveTask(taskId, over.id as string);
-      }
-      // Check if dropping on column id directly
-      else if (columns.some((col) => col.id === over.id)) {
+      } else if (board.columns.some((col) => col.id === over.id)) {
         moveTask(taskId, over.id as string);
       }
     }
@@ -157,6 +152,10 @@ export function KanbanBoard() {
     return tasks.filter((task) => task.status === status);
   };
 
+  if (!board) {
+    return <div>No board selected</div>;
+  }
+
   return (
     <DndContext
       sensors={sensors}
@@ -167,11 +166,11 @@ export function KanbanBoard() {
       onDragCancel={handleDragCancel}
     >
       <SortableContext
-        items={columns.map((col) => col.id)}
+        items={board.columns.map((col) => col.id)}
         strategy={horizontalListSortingStrategy}
       >
         <div className="flex gap-6 overflow-x-auto pb-4">
-          {columns.map((column) => (
+          {board.columns.map((column) => (
             <SortableColumn
               key={column.id}
               column={column}

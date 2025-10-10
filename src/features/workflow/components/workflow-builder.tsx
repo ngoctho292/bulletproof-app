@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef, useState, useMemo } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import ReactFlow, {
   Background,
   Controls,
@@ -15,6 +15,7 @@ import 'reactflow/dist/style.css';
 import { useWorkflowStore } from '../stores/workflow-store';
 import { NodeToolbar } from './node-toolbar';
 import { NodeConfigPanel } from './node-config-panel';
+import { ExecutionPanel } from './execution-panel';
 import { TriggerNode } from './nodes/trigger-node';
 import { ActionNode } from './nodes/action-node';
 import { ConditionNode } from './nodes/condition-node';
@@ -23,6 +24,7 @@ import { NotificationNode } from './nodes/notification-node';
 import { NodeType } from '../types';
 import { Save, Play, Settings, Download } from 'lucide-react';
 import { downloadWorkflow } from '../utils/workflow-io';
+import { WorkflowExecutor, ExecutionResult, ExecutionLog } from '../utils/workflow-executor';
 
 // ✅ Move nodeTypes OUTSIDE the component
 const nodeTypes = {
@@ -39,6 +41,8 @@ function WorkflowBuilderInner() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { project } = useReactFlow();
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [executionResult, setExecutionResult] = useState<ExecutionResult | null>(null);
+  const [isRunning, setIsRunning] = useState(false);
   
   const {
     currentWorkflow,
@@ -128,6 +132,41 @@ function WorkflowBuilderInner() {
     downloadWorkflow(currentWorkflow);
   }, [currentWorkflow]);
 
+  const handleRun = useCallback(async () => {
+    if (!currentWorkflow) return;
+    
+    if (currentWorkflow.nodes.length === 0) {
+      alert('Add some nodes to the workflow first!');
+      return;
+    }
+
+    setIsRunning(true);
+    setExecutionResult(null);
+
+    const executor = new WorkflowExecutor(
+      currentWorkflow,
+      (log: ExecutionLog) => {
+        // Update execution result with new log
+        setExecutionResult((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            logs: [...prev.logs, log],
+          };
+        });
+      }
+    );
+
+    try {
+      const result = await executor.execute();
+      setExecutionResult(result);
+    } catch (error: any) {
+      console.error('Workflow execution failed:', error);
+    } finally {
+      setIsRunning(false);
+    }
+  }, [currentWorkflow]);
+
   const onNodeClick = useCallback((event: React.MouseEvent, node: any) => {
     setSelectedNodeId(node.id);
   }, []);
@@ -170,10 +209,12 @@ function WorkflowBuilderInner() {
             </button>
             
             <button
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              onClick={handleRun}
+              disabled={isRunning}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              <Play size={18} />
-              Run
+              <Play size={18} className={isRunning ? 'animate-pulse' : ''} />
+              {isRunning ? 'Running...' : 'Run Workflow'}
             </button>
 
             {selectedNodeId && (
@@ -242,10 +283,19 @@ function WorkflowBuilderInner() {
       </div>
 
       {/* Config Panel */}
-      {selectedNodeId && (
+      {selectedNodeId && !executionResult && (
         <NodeConfigPanel
           nodeId={selectedNodeId}
           onClose={() => setSelectedNodeId(null)}
+        />
+      )}
+
+      {/* Execution Panel */}
+      {executionResult && (
+        <ExecutionPanel
+          result={executionResult}
+          isRunning={isRunning}
+          onClose={() => setExecutionResult(null)}
         />
       )}
     </div>
