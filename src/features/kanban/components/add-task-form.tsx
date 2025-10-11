@@ -14,7 +14,8 @@ export function AddTaskForm({ defaultStatus = 'todo' }: AddTaskFormProps) {
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState<string>(defaultStatus);
   const addTask = useKanbanStore((state) => state.addTask);
-  const columns = useKanbanStore((state) => state.columns);
+  const getCurrentBoard = useKanbanStore((state) => state.getCurrentBoard);
+  const columns = getCurrentBoard()?.columns || [];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,7 +85,7 @@ export function AddTaskForm({ defaultStatus = 'todo' }: AddTaskFormProps) {
         onChange={(e) => setStatus(e.target.value)}
         className="w-full px-3 py-2 border rounded mb-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
       >
-        {columns.map((column) => (
+        {columns.map((column: any) => (
           <option key={column.id} value={column.id}>
             {column.title}
           </option>

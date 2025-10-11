@@ -7,7 +7,6 @@ interface KanbanState {
   // Boards
   boards: Board[];
   currentBoardId: string | null;
-  
   // Tasks
   tasks: Task[];
   
