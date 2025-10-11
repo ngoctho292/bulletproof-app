@@ -38,7 +38,7 @@ export function KanbanColumn({ column, tasks, isOver }: KanbanColumnProps) {
       column,
     },
   });
-  const { updateColumn, deleteColumn } = useKanbanStore();
+  const { updateColumn, deleteColumn, currentBoardId  } = useKanbanStore();
   const [menuOpen, setMenuOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(column.title);
@@ -47,8 +47,8 @@ export function KanbanColumn({ column, tasks, isOver }: KanbanColumnProps) {
   const showHighlight = isOver || isOverDroppable;
 
   const handleSave = () => {
-    if (editTitle.trim()) {
-      updateColumn(column.id, { title: editTitle.trim() });
+    if (editTitle.trim() && currentBoardId) {
+      updateColumn(currentBoardId, column.id, { title: editTitle.trim() });
     }
     setIsEditing(false);
   };
@@ -59,7 +59,9 @@ export function KanbanColumn({ column, tasks, isOver }: KanbanColumnProps) {
         return;
       }
     }
-    deleteColumn(column.id);
+    if (currentBoardId) {
+      deleteColumn(currentBoardId, column.id);
+    }
     setMenuOpen(false);
   };
 
