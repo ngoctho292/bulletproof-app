@@ -1,0 +1,1 @@
+export const WarningIcon = () => <div aria-hidden className="warning" />;

@@ -298,17 +298,110 @@ export class WorkflowExecutor {
     }
 
     try {
-      // Simulate API call (you can implement real API calls here)
-      const response = {
-        status: 200,
-        data: { message: 'API call successful' },
-      };
+      // Parse headers - support both string and object
+      let headers: Record<string, string> = {};
+      if (config?.headers) {
+        if (typeof config.headers === 'string') {
+          try {
+            headers = JSON.parse(config.headers);
+          } catch (e) {
+            console.error('Failed to parse headers:', e);
+            throw new Error('Invalid headers JSON format');
+          }
+        } else if (typeof config.headers === 'object') {
+          headers = config.headers;
+        }
+      }
+
+      // Parse body - support both string and object
+      let bodyData: any = null;
+      if (config?.body && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
+        if (typeof config.body === 'string') {
+          try {
+            bodyData = JSON.parse(config.body);
+          } catch (e) {
+            console.error('Failed to parse body:', e);
+            throw new Error('Invalid body JSON format');
+          }
+        } else if (typeof config.body === 'object') {
+          bodyData = config.body;
+        }
+      }
+
+      this.addLog({
+        nodeId: node.id,
+        nodeLabel: node.data.label,
+        status: 'running',
+        message: `Making ${method} request to ${url}`,
+      });
+
+      // Log for debugging
+      console.log('📤 API Request:', {
+        method,
+        url,
+        headers,
+        body: bodyData,
+      });
+
+      // Make API call
+      const response = await fetch(url, {
+        method,
+        headers,
+        body: bodyData ? JSON.stringify(bodyData) : undefined,
+      });
+
+      console.log('📥 API Response Status:', response.status);
+
+      // Parse response
+      let responseData: any;
+      const contentType = response.headers.get('content-type');
+      
+      try {
+        if (contentType && contentType.includes('application/json')) {
+          responseData = await response.json();
+        } else {
+          responseData = await response.text();
+        }
+      } catch (e) {
+        responseData = { message: 'No response body' };
+      }
+
+      console.log('📥 API Response Data:', responseData);
+
+      // SendGrid returns 202 Accepted on success
+      if (!response.ok && response.status !== 202) {
+        const errorMessage = typeof responseData === 'object' 
+          ? JSON.stringify(responseData, null, 2)
+          : responseData;
+        
+        throw new Error(`HTTP ${response.status}: ${errorMessage}`);
+      }
+
+      // Log success
+      this.addLog({
+        nodeId: node.id,
+        nodeLabel: node.data.label,
+        status: 'success',
+        message: response.status === 202 
+          ? 'Email queued for sending (202 Accepted)'
+          : `Request successful (${response.status})`,
+        data: { 
+          status: response.status,
+          statusText: response.statusText,
+          response: responseData 
+        },
+      });
 
       return {
         ...context,
-        apiResponse: response,
+        apiResponse: {
+          status: response.status,
+          statusText: response.statusText,
+          data: responseData,
+        },
       };
     } catch (error: any) {
+      console.error('❌ API Error:', error);
       throw new Error(`API call failed: ${error.message}`);
     }
   }
