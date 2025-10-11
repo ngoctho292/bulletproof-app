@@ -12,13 +12,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const sendGridApiKey = process.env.SENDGRID_API_KEY || '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';
+    const sendGridApiKey = process.env.SENDGRID_API_KEY;
     const fromEmail = from || {
-      email: 'nguyenngoctho393@gmail.com',
+      email: process.env.SENDGRID_EMAIL,
       name: 'Workflow Automation'
     };
 
-    // Prepare SendGrid request
     const sendGridBody = {
       personalizations: [
         {
