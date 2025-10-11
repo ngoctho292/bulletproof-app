@@ -291,9 +291,9 @@ export class WorkflowExecutor {
   private async executeAPI(node: WorkflowNode, context: any): Promise<any> {
     const { config } = node.data;
     const method = config?.method || 'GET';
-    const url = config?.url || '';
-
-    if (!url) {
+    const url = process.env.NEXT_PUBLIC_BASE_API || config?.url;
+    const base_url = `${url}/api/send-email`;
+    if (!base_url) {
       throw new Error('API URL is required');
     }
 
@@ -332,19 +332,19 @@ export class WorkflowExecutor {
         nodeId: node.id,
         nodeLabel: node.data.label,
         status: 'running',
-        message: `Making ${method} request to ${url}`,
+        message: `Making ${method} request to ${base_url}`,
       });
 
       // Log for debugging
       console.log('📤 API Request:', {
         method,
-        url,
+        base_url,
         headers,
         body: bodyData,
       });
 
       // Make API call
-      const response = await fetch(url, {
+      const response = await fetch(base_url, {
         method,
         headers,
         body: bodyData ? JSON.stringify(bodyData) : undefined,

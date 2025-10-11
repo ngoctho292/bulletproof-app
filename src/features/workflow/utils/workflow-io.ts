@@ -9,8 +9,12 @@ export interface ExportedWorkflow extends Omit<Workflow, 'createdAt' | 'updatedA
 export const exportWorkflow = (workflow: Workflow): string => {
   const exportData: ExportedWorkflow = {
     ...workflow,
-    createdAt: workflow.createdAt.toISOString(),
-    updatedAt: workflow.updatedAt.toISOString(),
+    createdAt: workflow.createdAt instanceof Date 
+      ? workflow.createdAt.toISOString() 
+      : new Date(workflow.createdAt).toISOString(),
+    updatedAt: workflow.updatedAt instanceof Date 
+      ? workflow.updatedAt.toISOString() 
+      : new Date(workflow.updatedAt).toISOString(),
     version: '1.0.0',
   };
 
