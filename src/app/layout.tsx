@@ -4,7 +4,7 @@ import './globals.css';
 import "@/styles/toast.css";
 import { ReactQueryProvider } from '@/lib/react-query';
 import { ErrorBoundary } from '@/components/error-boundary';
-import { Header } from '@/components/layouts/header';
+import { SidebarLayout } from '@/components/layouts/sidebar-layout';
 import { Toasts } from '@/components/ui/toast';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -25,8 +25,9 @@ export default function RootLayout({
         <Toasts>
           <ErrorBoundary>
             <ReactQueryProvider>
-              <Header />
-              <main>{children}</main>
+              <SidebarLayout>
+                {children}
+              </SidebarLayout>
             </ReactQueryProvider>
           </ErrorBoundary>
         </Toasts>

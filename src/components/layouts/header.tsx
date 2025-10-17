@@ -25,6 +25,9 @@ export function Header() {
             <Link href="/workflow" className="hover:text-blue-600 transition-colors">
               Workflow
             </Link>
+            <Link href="/chat" className="hover:text-blue-600 transition-colors">
+              Chatroom
+            </Link>
             <Link href="/login" className="hover:text-blue-600 transition-colors">
               Login
             </Link>
