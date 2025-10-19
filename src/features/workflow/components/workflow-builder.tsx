@@ -257,6 +257,7 @@ function WorkflowBuilderInner() {
           onPaneClick={onPaneClick}
           nodeTypes={nodeTypes}
           connectionMode={ConnectionMode.Loose}
+          proOptions={{ hideAttribution: true }}
           fitView
         >
           <Background />
