@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     }
 
     const timestamp = Date.now();
-    const url = `${API_BASE_URL}/work/TaskReport/GetReportTaskByUserCurrentFunc?searchText=${searchText}&arrUserIds=%5B${userId}%5D&startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
+    const url = `${API_BASE_URL}/work/TaskReport/GetReportTaskByUserCurrentFunc?searchText=${searchText}&arrUserIds=%5B${userId}%5D&startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}&t=${timestamp}`;
 
     const response = await fetch(url, {
       method: 'GET',

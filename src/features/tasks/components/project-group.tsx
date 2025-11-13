@@ -73,7 +73,7 @@ export const ProjectGroup = ({
 
       {/* Tasks Grid */}
       {isExpanded && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pl-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {tasks.map((task) => (
             <TaskCard
               key={task.task_id}

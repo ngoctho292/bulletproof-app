@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
     const timestamp = Date.now();
     const response = await fetch(
-      `${API_BASE_URL}/work/Task/DoingTask`,
+      `${API_BASE_URL}/work/Task/DoingTask?t=${timestamp}`,
       {
         method: 'POST',
         headers: {
@@ -28,7 +28,6 @@ export async function POST(request: NextRequest) {
         body: JSON.stringify(body),
       }
     );
-
     const data = await response.json();
 
     return NextResponse.json(data, { status: response.status });

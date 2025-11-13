@@ -10,7 +10,9 @@ import {
   addTaskComment,
 } from '@/features/tasks/api/task-api';
 import { ProjectGroup } from '@/features/tasks/components/project-group';
+import { AutoStopSettings } from '@/features/tasks/components/auto-stop-settings';
 import { useToast } from '@/components/ui/toast';
+import { useAutoStopTask } from '@/features/tasks/hooks/use-auto-stop-task';
 import type { Task } from '@/features/tasks/types';
 
 export default function TasksPage() {
@@ -19,6 +21,57 @@ export default function TasksPage() {
   const { token, userId, username, tasks, setTasks, clearAuth } = useTaskStore();
   const [isLoading, setIsLoading] = useState(true);
   const [searchText, setSearchText] = useState('');
+
+  // Auto-stop settings state with localStorage persistence
+  const [autoStopEnabled, setAutoStopEnabled] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('autoStopEnabled');
+      return saved ? JSON.parse(saved) : false;
+    }
+    return false;
+  });
+
+  const [autoStopThreshold, setAutoStopThreshold] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('autoStopThreshold');
+      return saved ? Number(saved) : 90;
+    }
+    return 90;
+  });
+
+  const [autoStopInterval, setAutoStopInterval] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('autoStopInterval');
+      return saved ? Number(saved) : 2;
+    }
+    return 2;
+  });
+
+  // Save settings to localStorage when they change
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('autoStopEnabled', JSON.stringify(autoStopEnabled));
+      localStorage.setItem('autoStopThreshold', String(autoStopThreshold));
+      localStorage.setItem('autoStopInterval', String(autoStopInterval));
+    }
+  }, [autoStopEnabled, autoStopThreshold, autoStopInterval]);
+
+  // Auto-stop tasks when reaching threshold
+  useAutoStopTask({
+    tasks,
+    token,
+    onTaskStopped: (taskId, taskName) => {
+      toast.warning({
+        title: '⏰ Task tự động dừng',
+        description: `"${taskName}" đã đạt ${autoStopThreshold}% thời gian ước tính`,
+      });
+      // Reload tasks to get updated status
+      loadTasks();
+    },
+    enabled: autoStopEnabled,
+    thresholdPercent: autoStopThreshold,
+    checkIntervalMinutes: autoStopInterval,
+  });
 
   useEffect(() => {
     if (!token || !userId) {
@@ -165,6 +218,18 @@ export default function TasksPage() {
 
       {/* Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Auto-Stop Settings */}
+        <AutoStopSettings
+          enabled={autoStopEnabled}
+          thresholdPercent={autoStopThreshold}
+          checkIntervalMinutes={autoStopInterval}
+          onSettingsChange={(settings) => {
+            setAutoStopEnabled(settings.enabled);
+            setAutoStopThreshold(settings.thresholdPercent);
+            setAutoStopInterval(settings.checkIntervalMinutes);
+          }}
+        />
+
         {filteredTasks.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-500 text-lg">

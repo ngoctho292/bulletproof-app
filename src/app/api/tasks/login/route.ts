@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
     const timestamp = Date.now();
 
     const response = await fetch(
-      `${API_BASE_URL}/auth/login`,
+      `${API_BASE_URL}/auth/login?t=${timestamp}`,
       {
         method: 'POST',
         headers: {

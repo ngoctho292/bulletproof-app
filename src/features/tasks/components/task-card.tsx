@@ -26,8 +26,8 @@ export const TaskCard = ({
   const [showCommentInput, setShowCommentInput] = useState(false);
   const [comment, setComment] = useState('');
 
-  const isRunning = task.running_flag === 1;
-  const isDone = task.status_id === 10; // Assuming status 3 means done
+  const isRunning = task.running_flag === 1; // 1: Dừng 2: Đang chạy
+  const isDone = task.status_id === 10; // 10: Đã hoành thành 2: Chưa hoàn thành
 
   const handleDoingTask = async () => {
     setIsLoading(true);
@@ -63,14 +63,14 @@ export const TaskCard = ({
 
   const handleAddComment = async () => {
     if (!comment.trim()) {
-      toast.warning({ title: 'Vui lòng nhập bình luận' });
+      toast.warning({ title: 'Vui lòng nhập báo cáo' });
       return;
     }
 
     setIsLoading(true);
     try {
       await onAddComment(task.task_id, comment);
-      toast.success({ title: 'Đã thêm bình luận' });
+      toast.success({ title: 'Đã thêm báo cáo' });
       setComment('');
       setShowCommentInput(false);
     } catch (error) {
@@ -130,7 +130,7 @@ export const TaskCard = ({
           disabled={isLoading}
           className={`flex-1 min-w-[120px] px-4 py-2 rounded-lg font-medium transition-colors ${
             isRunning
-              ? 'bg-yellow-500 hover:bg-yellow-600 text-white'
+              ? 'bg-red-500 hover:bg-red-600 text-white'
               : 'bg-green-500 hover:bg-green-600 text-white'
           } disabled:opacity-50 disabled:cursor-not-allowed`}
         >
@@ -140,7 +140,11 @@ export const TaskCard = ({
         <button
           onClick={handleDoneTask}
           disabled={isLoading}
-          className="flex-1 min-w-[120px] px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className={`flex-1 min-w-[120px] px-4 py-2 rounded-lg font-medium transition-colors ${
+            isDone
+              ? 'bg-yellow-500 hover:bg-yellow-600 text-white'
+              : 'bg-blue-500 hover:bg-blue-600 text-white'
+          } disabled:opacity-50 disabled:cursor-not-allowed`}
         >
           {isDone ? '↺ Huỷ hoàn thành' : '✓ Hoàn thành'}
         </button>
@@ -150,7 +154,7 @@ export const TaskCard = ({
           disabled={isLoading}
           className="flex-1 min-w-[120px] px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          💬 Bình luận
+          💬 Báo cáo
         </button>
       </div>
 
@@ -160,7 +164,7 @@ export const TaskCard = ({
           <textarea
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            placeholder="Nhập bình luận của bạn..."
+            placeholder="Nhập báo cáo của bạn..."
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
             rows={3}
           />

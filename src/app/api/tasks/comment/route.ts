@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
     const timestamp = Date.now();
     const response = await fetch(
-      `${API_BASE_URL}/work/TaskComment/AddTaskComment`,
+      `${API_BASE_URL}/work/TaskComment/AddTaskComment?t=${timestamp}`,
       {
         method: 'POST',
         headers: {

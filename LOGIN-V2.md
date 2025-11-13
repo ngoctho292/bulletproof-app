@@ -94,7 +94,7 @@ RESPONSE:
     "statusCode": 0
 }
 
-API BÌNH LUẬN TASK:
+API BÁO CÁO TASK:
 REQUEST:
 curl --location 'https://api_cds.hcmict.io/api/work/TaskComment/AddTaskComment?t=1763004221262' \
 --header 'accept: */*' \
@@ -122,6 +122,6 @@ YÊU CẦU MONG MUỐN:
     - Hiển thị danh sách task với Tên Task, Code Task, Ngày bắt đầu (schedule_start), Ngày kết thúc (schedule_end), Số giờ yêu cầu (planned_duration_time)
     - Thao tác hoàn thành và huỷ hoàn thành task
     - Thao tác bắt đầu task và dừng task
-    - Bình luận task
+    - Báo cáo task
     - Hiển thị toast khi thao tác xong
 - Giao diện đẹp mắt, tinh giản, ít thao tác (kiểu như là các chức năng sẽ ở trên card luôn không cần nhấn vào xem chi tiết)
