@@ -29,6 +29,11 @@ const navItems = [
     icon: Home 
   },
   { 
+    name: 'Tasks', 
+    href: '/tasks', 
+    icon: ShoppingBag 
+  },
+  { 
     name: 'Products', 
     href: '/products', 
     icon: ShoppingBag 

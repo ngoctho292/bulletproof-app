@@ -97,6 +97,9 @@ export function LoginForm() {
       </button>
 
       <p className="text-sm text-gray-500 text-center">
+        Account: nntho.hcm / Vnpt@1234
+      </p>
+      <p className="text-sm text-gray-500 text-center">
         Error credentials: mor_2343 / 83r5^_
       </p>
       <p className="text-sm text-gray-500 text-center">

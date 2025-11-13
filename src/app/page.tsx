@@ -1,26 +1,28 @@
 'use client';
 
-import { useToast } from '@/components/ui/toast';
-import Link from 'next/link';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useTaskStore } from '@/features/tasks/stores/task-store';
 
 export default function Home() {
-  const toast = useToast();
+  const router = useRouter();
+  const { token } = useTaskStore();
+
+  useEffect(() => {
+    // Redirect to /tasks if logged in, otherwise to /login-v2
+    if (token) {
+      router.push('/tasks');
+    } else {
+      router.push('/login-v2');
+    }
+  }, [token, router]);
+
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-24">
-      <h1 className="text-4xl font-bold mb-8">
-        Welcome to Bulletproof React App
-      </h1>
-      <Link
-        href="/products"
-        className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-      >
-        View Products
-      </Link>
-      <span onClick={() => toast({ title: 'Mặc định',description: 'heheh', duration: 2000 })}>Toast default</span>
-      <span onClick={() => toast.success({ title: 'Thành công',description: 'heheh', duration: 2000 })}>Toast success</span>
-      <span onClick={() => toast.warning({ title: 'Cảnh báo',description: 'heheh', duration: 2000 })}>Toast warning</span>
-      <span onClick={() => toast.info({ title: 'Thông tin',description: 'heheh', duration: 2000 })}>Toast info</span>
-      <span onClick={() => toast.error({ title: 'Lỗi',description: 'heheh', duration: 2000 })}>Toast error</span>
+    <div className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+        <p className="mt-4 text-gray-600">Đang chuyển hướng...</p>
+      </div>
     </div>
   );
 }
